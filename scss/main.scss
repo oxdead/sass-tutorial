@@ -1,0 +1,148 @@
+// //sass tutorial
+
+// basic setup
+// 1. install Live Sass Compiler(by Ritwick Dey) extension for VSCode
+// 2. install Live Server (by Ritwick Dey) for more convenient development
+// 3. Go to settings(ctrl+,) type sass and find Live Sass Compile >Settings, click edit json
+// 4. Add settings to json:
+// 	"liveSassCompile.settings.formats":[
+// 		// //default, savePath=null means save in the same folder where scss is situated
+// 		// {
+// 		// 	"format": "expanded",
+// 		// 	"extensionName": ".css",
+// 		// 	"savePath": null,
+
+// 		// },
+// 		// //minified version, good for production
+// 		// {
+// 		// 	"format": "compressed",
+// 		// 	"extensionName": ".min.css",
+// 		// 	"savePath": "/dist/css",
+
+// 		// },
+// 		//good for development		
+// 		{
+// 			"format": "expanded",
+// 			"extensionName": ".css",
+// 			"savePath": "/dist/css",
+
+// 		}
+// 	]
+// 5.create folders for project (in our case it's "dist/css")
+// 6.after creatin of html file and scss file go to scss file, in VSCode there will be a button "Watch Sass", click it
+// 7.click at Go Live button for Live Server too
+
+// tutorial contains:
+//1. variables
+//2. map container
+//3. @import: module files (underscored filenames)
+//4. @function
+//5. @mixin @include
+//6. @content for replacement with something
+//7. @if statement
+//8. & acts like "this" for parent object
+//9. #{&} interpolation. For creating nesting, example: .main .main__paragraph
+//10. @extend. Inherit properties of other object
+//11. operators: + - * / == != < <= > >= and or
+
+
+
+// files with undescore are called partial, they are ignored by scss compiler, they are good for modularizing scss files as there can be a lot of them in a big project
+// when importing partial files, no need to write undescore or extension (example: _resets.scss -> resets)
+@import './resets';
+@import './variables';
+
+
+//function declaration example
+//function should be used to compute values and return values, while mixin should define styles
+@function weight($weight-name) {
+    @return map-get($font-weights, $weight-name);
+}
+
+
+//mixin allows to include oftenly used properties as a single-line mixin, instead of everytime repeatedly type those properties
+//brackets () are not necessay if mixin doesn't have arguments
+//function should be used to compute values and return values, while mixin should define styles
+@mixin flexCenter($direction) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: $direction;
+}
+
+
+
+//example of using mixin for changing theme colors
+//default argunet is set to true
+@mixin theme($light-theme: true){
+    @if $light-theme {
+        background: lighten($primary-color, 100%); 
+        color: darken($text-color, 100%);
+    }
+}
+
+
+// one more example of usage of mixin and @content for different screen sizes
+@mixin mobile {
+    @media (max-width: $mobile){
+        @content;
+    }
+}
+
+
+body {
+    background-color: $primary-color;
+    color: $text-color;
+}
+
+
+
+.main {
+    width: 80% - 20%; // in scss we can do calculations, but only between same operator types (unlike in pure css we can operate even with different types via calc func, example: calc(80% - 350px))
+    margin: 0 auto;
+    @include flexCenter(row); // mixin usage example, () and argument is not necessary
+    //when width of screen is below 800px, change direction to column
+    @include mobile {
+        flex-direction: column;
+    }
+
+    //1. nesting (be careful in big projects, having classes that can be reused instead of nest after nest is much better)
+    //2. & is basically 'this' keyword in scss world. it replaces & with name of parent property ($__paragraph -> .main__paragraph)
+    //3. #{} is called interpolation. translates into nested tags (#{&}__paragraph -> .main .main__paragraph)
+    #{&}__paragraph1 {
+        //font-weight: map-get($font-weights, bold); //map usage example, arguments( map, key )
+        font-weight: weight(bold); // function usage example
+
+        &:hover {
+            color: pink;
+        }
+    }
+
+
+    //we can extend one class with data from the other class and add some additional stuff
+    #{&}__paragraph2 {
+        @extend .main__paragraph1;
+
+        &:hover {
+            color: $accent-color;
+        }
+    }
+
+}
+
+//example of using mixin to change theme color, by changing value. true = light theme, false = dark theme
+// when turn to false, light class will not be compiled to css at all, because it's empty
+.light {
+    @include theme($light-theme: false); // name of argument is not necessary, but it's a good practice as it makes it more identifiable
+}
+
+
+
+
+
+
+
+
+
+
+
